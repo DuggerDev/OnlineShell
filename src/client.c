@@ -18,7 +18,7 @@ int main(){
   serverAddr.sin_family = AF_INET;
 
   /* Set port number, using htons function to use proper byte order */
-  serverAddr.sin_port = htons(7891);
+  serverAddr.sin_port = htons(1298);
 
   /* Set IP address to localhost */
   serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -29,6 +29,13 @@ int main(){
   /*---- Connect the socket to the server using the address struct ----*/
   addr_size = sizeof serverAddr;
   connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
+
+  //grab commands to be sent to the server
+  printf("Enter a command: ");
+  fgets(buffer, 1024, stdin);
+
+  //send the command to the server
+  send(clientSocket, buffer, 1024, 0);
 
   /*---- Read the message from the server into the buffer ----*/
   recv(clientSocket, buffer, 1024, 0);

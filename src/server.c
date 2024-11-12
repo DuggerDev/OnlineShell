@@ -2,9 +2,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-int main()
+int main(int argc, char *argv[])
 {
-    int welcomeSocket, newSocket;
+    int welcomeSocket, newSocket, valread;
     char buffer[1024];
     struct sockaddr_in serverAddr;
     struct sockaddr_storage serverStorage;
@@ -19,7 +19,7 @@ int main()
     serverAddr.sin_family = AF_INET;
 
     /* Set port number, using htons function to use proper byte order */
-    serverAddr.sin_port = htons(7891);
+    serverAddr.sin_port = htons(1298);
 
     /* Set IP address to localhost */
     serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -40,6 +40,30 @@ int main()
     addr_size = sizeof serverStorage;
     newSocket = accept(welcomeSocket, (struct sockaddr *)&serverStorage,
                        &addr_size);
+    
+    while(1){
+        pid_t pid;
+        pid = fork();
+
+        //if fork() returns 0, then it is the child process
+        if(pid == 0){
+            //close the welcome socket
+            close(welcomeSocket);
+            //read the args from the client and execvp
+            valread = read(newSocket, buffer, 1024);
+            printf("Data received: %s", buffer);
+            //print buffer 0 for debug
+            printf("%s", buffer[0]);
+            //print buffer for debug
+            printf("%s", buffer);
+            execvp(buffer[0], buffer);
+            //block the execvp output from going to stdout
+            dup2(newSocket, 1);
+            //send execvp output to the client
+            send(newSocket, buffer, 1024, 0);
+            return 0;
+        }
+    }
                        
     /*---- Send message to the socket of the incoming connection ----*/
     strcpy(buffer, "Hello World\n");
