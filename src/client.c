@@ -52,13 +52,6 @@ int main(){
     printf("Data received: %s",buffer);  
     }
   }
- 
-
-  return 0;
-}
-
-  /*---- Print the received message ----*/
-  printf("Data received: %s",buffer);   
-
+  
   return 0;
 }
