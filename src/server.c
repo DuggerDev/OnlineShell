@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
             close(welcomeSocket);
             //read the args from the client and execvp
             valread = read(newSocket, buffer, 1024);
-            printf("Data received: %s", buffer);
+            printf("Data received: %s\n", buffer);
             //print token 0 for debug
-            printf("%s", args[0]);
+            printf("args[0]: %s\n", args[0]);
             //print token 1 for debug
-            printf("%s", args);
+            printf("args: %s\n", args);
 
             //block the execvp output from going to stdout and stderr
             //found an exeample here: https://stackoverflow.com/questions/1720535/practical-examples-use-dup-or-dup2
