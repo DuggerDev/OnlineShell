@@ -49,7 +49,7 @@ int main(){
     recv(clientSocket, buffer, 1024, 0);
 
     /*---- Print the received message ----*/
-    printf("Data received: %s",buffer);  
+    printf("Data received: %s \n",buffer);  
     }
   }
   
