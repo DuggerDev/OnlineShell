@@ -30,8 +30,8 @@ int main(){
   addr_size = sizeof serverAddr;
   connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
 
+  // This will let the client keep looping and asking for commands until quit is given.
   int commandLoop = 1;
-
   while(commandLoop){
     //grab commands to be sent to the server
     printf("Enter a command: ");
