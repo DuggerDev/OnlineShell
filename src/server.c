@@ -85,7 +85,8 @@ int main(int argc, char *argv[])
             execvp(args[0], args);
             
             //send execvp output to the client
-            send(newSocket, buffer, 1024, 0);
+            //send(newSocket, buffer, 1024, 0);
+            close(newSocket);
             return 0;
         }
         if(loopBreakout == 5){
@@ -95,6 +96,6 @@ int main(int argc, char *argv[])
                        
     /*---- Send message to the socket of the incoming connection ----*/
     //strcpy(buffer, "Hello World\n");
-    send(newSocket, buffer, 13, 0);
+    //send(newSocket, buffer, 13, 0);
     return 0;
 }
