@@ -2,6 +2,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <unistd.h>
+
 int main(int argc, char *argv[])
 {
     int welcomeSocket, newSocket, valread;
@@ -40,10 +42,25 @@ int main(int argc, char *argv[])
     addr_size = sizeof serverStorage;
     newSocket = accept(welcomeSocket, (struct sockaddr *)&serverStorage,
                        &addr_size);
-    
+
+    //break the buffer into tokens/args[] where there is a space and then add a null terminator
+    //didnt know i needed a null terminator so this helped: https://stackoverflow.com/questions/6274166/execvp-arguments
+    char *args[1024];
+    char *token = strtok(buffer, " ");
+    int i = 0;
+    while(token != NULL){
+        args[i] = token;
+        i++;
+        token = strtok(NULL, " ");
+    }
+    args[i] = NULL;
+
+    int loopBreakout = 0;
     while(1){
         pid_t pid;
         pid = fork();
+
+        loopBreakout++;
 
         //if fork() returns 0, then it is the child process
         if(pid == 0){
@@ -52,21 +69,30 @@ int main(int argc, char *argv[])
             //read the args from the client and execvp
             valread = read(newSocket, buffer, 1024);
             printf("Data received: %s", buffer);
-            //print buffer 0 for debug
-            printf("%s", buffer[0]);
-            //print buffer for debug
-            printf("%s", buffer);
-            execvp(buffer[0], buffer);
-            //block the execvp output from going to stdout
-            dup2(newSocket, 1);
+            //print token 0 for debug
+            printf("%s", args[0]);
+            //print token 1 for debug
+            printf("%s", args);
+
+            //block the execvp output from going to stdout and stderr
+            //found an exeample here: https://stackoverflow.com/questions/1720535/practical-examples-use-dup-or-dup2
+            dup2(newSocket, STDOUT_FILENO);
+            dup2(newSocket, STDERR_FILENO); //apparently both of these have to be done before you use execvp
+
+            //use execvp to run the arguments
+            execvp(args[0], args);
+            
             //send execvp output to the client
             send(newSocket, buffer, 1024, 0);
             return 0;
         }
+        if(loopBreakout == 5){
+            break;
+        }
     }
                        
     /*---- Send message to the socket of the incoming connection ----*/
-    strcpy(buffer, "Hello World\n");
+    //strcpy(buffer, "Hello World\n");
     send(newSocket, buffer, 13, 0);
     return 0;
 }
