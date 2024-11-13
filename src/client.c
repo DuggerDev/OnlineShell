@@ -30,15 +30,32 @@ int main(){
   addr_size = sizeof serverAddr;
   connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
 
-  //grab commands to be sent to the server
-  printf("Enter a command: ");
-  fgets(buffer, 1024, stdin);
+  int commandLoop = 1;
 
-  //send the command to the server
-  send(clientSocket, buffer, 1024, 0);
+  while(commandLoop){
+    //grab commands to be sent to the server
+    printf("Enter a command: ");
+    fgets(buffer, 1024, stdin);
 
-  /*---- Read the message from the server into the buffer ----*/
-  recv(clientSocket, buffer, 1024, 0);
+    if(strcmp("quit", buffer) == 0){
+      commandLoop = 0;
+      printf("Closing socket connection...\n ");
+
+    } else {
+      //send the command to the server
+    send(clientSocket, buffer, 1024, 0);
+
+    /*---- Read the message from the server into the buffer ----*/
+    recv(clientSocket, buffer, 1024, 0);
+
+    /*---- Print the received message ----*/
+    printf("Data received: %s",buffer);  
+    }
+  }
+ 
+
+  return 0;
+}
 
   /*---- Print the received message ----*/
   printf("Data received: %s",buffer);   
