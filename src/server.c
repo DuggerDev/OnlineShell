@@ -45,15 +45,7 @@ int main(int argc, char *argv[])
 
     //break the buffer into tokens/args[] where there is a space and then add a null terminator
     //didnt know i needed a null terminator so this helped: https://stackoverflow.com/questions/6274166/execvp-arguments
-    char *args[1024];
-    char *token = strtok(buffer, " ");
-    int i = 0;
-    while(token != NULL){
-        args[i] = token;
-        i++;
-        token = strtok(NULL, " ");
-    }
-    args[i] = NULL;
+    
 
     int loopBreakout = 0;
     while(1){
@@ -68,6 +60,16 @@ int main(int argc, char *argv[])
             close(welcomeSocket);
             //read the args from the client and execvp
             valread = read(newSocket, buffer, 1024);
+            char *args[1024];
+            char *token = strtok(buffer, " ");
+            int i = 0;
+            while(token != NULL){
+                args[i] = token;
+                i++;
+                token = strtok(NULL, " ");
+            }
+            args[i] = NULL;
+
             printf("Data received: %s\n", buffer);
             //print token 0 for debug
             printf("args[0]: %s\n", args[0]);
