@@ -38,14 +38,16 @@ int main(int argc, char *argv[])
     else
         printf("Error\n");
 
+    //if the buffer contains quit then close the socket
+    if(strcmp("quit", buffer) == 0){
+        close(welcomeSocket);
+        return 0;
+    }
+
     /*---- Accept call creates a new socket for the incoming connection ----*/
     addr_size = sizeof serverStorage;
     newSocket = accept(welcomeSocket, (struct sockaddr *)&serverStorage,
                        &addr_size);
-
-    //break the buffer into tokens/args[] where there is a space and then add a null terminator
-    //didnt know i needed a null terminator so this helped: https://stackoverflow.com/questions/6274166/execvp-arguments
-    
 
     int loopBreakout = 0;
     while(1){
@@ -60,6 +62,10 @@ int main(int argc, char *argv[])
             close(welcomeSocket);
             //read the args from the client and execvp
             valread = read(newSocket, buffer, 1024);
+
+            //break the buffer into tokens/args[] where there is a space and then add a null terminator
+            //didnt know i needed a null terminator so this helped: https://stackoverflow.com/questions/6274166/execvp-arguments
+            //also got help from dr altarazi on this
             char *args[1024];
             char *token = strtok(buffer, " ");
             int i = 0;
@@ -70,11 +76,11 @@ int main(int argc, char *argv[])
             }
             args[i] = NULL;
 
-            printf("Data received: %s\n", buffer);
-            //print token 0 for debug
-            printf("args[0]: %s\n", args[0]);
-            //print token 1 for debug
-            printf("args: %s\n", args);
+            //printf("Data received: %s\n", buffer);
+            //print args 0 for debug
+            //printf("args[0]: %s\n", args[0]);
+            //print args for debug
+            //printf("args: %s\n", args);
 
             //block the execvp output from going to stdout and stderr
             //found an exeample here: https://stackoverflow.com/questions/1720535/practical-examples-use-dup-or-dup2
@@ -84,8 +90,7 @@ int main(int argc, char *argv[])
             //use execvp to run the arguments
             execvp(args[0], args);
             
-            //send execvp output to the client
-            //send(newSocket, buffer, 1024, 0);
+            //send execvp output to the client, apparently just closing the socket does this we dont have to send anything
             close(newSocket);
             return 0;
         }
@@ -93,9 +98,6 @@ int main(int argc, char *argv[])
             break;
         }
     }
-                       
-    /*---- Send message to the socket of the incoming connection ----*/
-    //strcpy(buffer, "Hello World\n");
-    //send(newSocket, buffer, 13, 0);
+
     return 0;
 }
