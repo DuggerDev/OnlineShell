@@ -39,6 +39,7 @@ int main(){
 
     if(strcmp("quit", buffer) == 0){
       commandLoop = 0;
+      send(clientSocket, buffer, 1024, 0);
       printf("Closing socket connection...\n ");
 
     } else {
