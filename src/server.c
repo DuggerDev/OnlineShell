@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
@@ -38,19 +39,13 @@ int main(int argc, char *argv[])
     else
         printf("Error\n");
 
-    //if the buffer contains quit then close the socket
-    if(strcmp("quit", buffer) == 0){
-        close(welcomeSocket);
-        return 0;
-    }
-
-    /*---- Accept call creates a new socket for the incoming connection ----*/
-    addr_size = sizeof serverStorage;
-    newSocket = accept(welcomeSocket, (struct sockaddr *)&serverStorage,
-                       &addr_size);
-
     int loopBreakout = 0;
     while(1){
+
+        /*---- Accept call creates a new socket for the incoming connection ----*/
+        addr_size = sizeof serverStorage;
+        newSocket = accept(welcomeSocket, (struct sockaddr *)&serverStorage,
+                        &addr_size);
         pid_t pid;
         pid = fork();
 
@@ -62,6 +57,12 @@ int main(int argc, char *argv[])
             close(welcomeSocket);
             //read the args from the client and execvp
             valread = read(newSocket, buffer, 1024);
+
+            //if the buffer contains quit then close the socket
+            if(strcmp("quit", buffer) == 0){
+                close(welcomeSocket);
+                return 0;
+            }
 
             //break the buffer into tokens/args[] where there is a space and then add a null terminator
             //didnt know i needed a null terminator so this helped: https://stackoverflow.com/questions/6274166/execvp-arguments
@@ -92,7 +93,8 @@ int main(int argc, char *argv[])
             
             //send execvp output to the client, apparently just closing the socket does this we dont have to send anything
             close(newSocket);
-            return 0;
+            //exit the child fork process
+            exit(0);
         }
         if(loopBreakout == 5){
             break;
